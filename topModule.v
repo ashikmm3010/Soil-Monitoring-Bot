@@ -24,7 +24,7 @@ module top(
     input [12:0] sensorC,
     input [12:0] sensorR,
     input clock,
-    output reg AF,AB,BF,BB);
+	output reg AF,AB,BF,BB);	//its assumed that motors rotate using active low levels.
     
 	reg [2:0] a;
 	reg black = 1023;
@@ -61,11 +61,11 @@ module top(
 
 						AF=1'b0;AB=1'b1;BF=1'b0;BB=1'b1; end
 
-			3'b011:begin //Node Detected (on right)
+			3'b011:begin //Node Detected (on right) then turn right
 
 						//send message to Xbee
 
-						AF=1'b0;AB=1'b1;BF=1'b0;BB=1'b1; end
+						AF=1'b0;AB=1'b1;BF=1'b1;BB=1'b1; end
 
 
 			default:begin AF=1'b0;AB=1'b1;BF=1'b0;BB=1'b1; end//stop
