@@ -25,7 +25,8 @@ module ColourSensorController(
     input clk,
     input OE,
     output [1:0] colour,
-    input freq
+    input freq,
+    output reg [2:0] led //in RGB order
     );
  
  reg count = 0;
@@ -33,6 +34,8 @@ module ColourSensorController(
  reg green_mfreq;
  reg blue_mfreq;
  //s1=0,s0=1  => 20% scaling
+ 
+ freqCalculator freqCounter(.freq(frequency),.Vout(Vout),.clk(clock));
  
  always@(posedge clk)
  begin   
@@ -43,7 +46,8 @@ module ColourSensorController(
         //record the frequency
         if(freq>blue_mfreq)
         begin
-        //light the red led
+        //light the blue led
+        led=3'b001;
         //send the message  
         end
         
@@ -51,7 +55,8 @@ module ColourSensorController(
         //record frequency
         if(freq>green_mfreq & freq<blue_mfreq)
         begin
-        //light the red led
+        //light the green led
+        led=3'b010;
         //send the message
         end
         
@@ -60,6 +65,7 @@ module ColourSensorController(
         if(freq>red_mfreq & freq<green_mfreq)
         begin
         //light the red led
+        led=3'b100;
         //send the message
         end
     end
@@ -70,18 +76,41 @@ module ColourSensorController(
 end   
 endmodule
 
+
 ////////////////////////////////////////////////////////////////////////////////
 
 module freqCalculator(
     input Vout,
-    output fequency
-    );
- reg count = 0;
+    input clock,
+    output fequency);
    
+ reg unit = 0;
+ reg flag = 0;
+ reg clk; // input the fpga clock value
+ 
+ //for marking completion of 1 second
+ always@(posedge clock) 
+ begin
+    unit=unit+1;
+    if (unit==clk)
+    begin
+        flag = 1;
+        unit=0;
+    end
+ end 
+ 
+ //counting the output frequency for 1 sec
+ reg count = 0;
+ reg frequency;
+ 
  always@(posedge Vout)
         begin
         count=count+1;
-        
+        if(flag==1)
+        begin
+            frequency=count;
+            count=0;
         end
-endmodule
+ end
 
+endmodule
