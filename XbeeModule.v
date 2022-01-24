@@ -1,3 +1,0 @@
-module XbeeModule();
-
-endmodule
